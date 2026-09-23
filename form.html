@@ -1,0 +1,1301 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="遊べる名刺をつくるための世界観召喚票。キャラクター、店、作品、世界観を動きへ変換します。">
+  <meta name="theme-color" content="#211620">
+  <title>世界観召喚票｜NOCTARIUM PLAYABLE CARD</title>
+  <style>
+@charset "UTF-8";
+
+:root {
+  color-scheme: dark;
+  --paper: #211620;
+  --paper-soft: #2b1c29;
+  --paper-raised: #33212f;
+  --ink: #f3e6d7;
+  --muted: #c8b4bb;
+  --line: #694858;
+  --line-bright: #987084;
+  --gold: #c4a370;
+  --rose: #e48ca7;
+  --rose-deep: #8f3855;
+  --ivory: #f6eedf;
+  --danger: #ffb4bd;
+  --serif: "Iowan Old Style", "Baskerville", "YuMincho", "Hiragino Mincho ProN", serif;
+  --sans: "Hiragino Kaku Gothic ProN", "Yu Gothic", system-ui, sans-serif;
+  font-family: var(--sans);
+  color: var(--ink);
+  background: var(--paper);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 8% 3%, rgba(133, 49, 84, .35), transparent 38rem),
+    radial-gradient(ellipse at 94% 35%, rgba(88, 48, 97, .24), transparent 34rem),
+    linear-gradient(180deg, #251823 0, var(--paper) 42rem);
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: .14;
+  background-image:
+    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(to bottom, black, transparent 75%);
+}
+
+button, input, textarea, select { font: inherit; }
+button, label, select { -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; }
+button:disabled { cursor: default; opacity: .45; }
+:focus-visible { outline: 3px solid var(--rose); outline-offset: 3px; }
+[hidden] { display: none !important; }
+
+.skip-link {
+  position: fixed;
+  z-index: 20;
+  left: 12px;
+  top: -100px;
+  background: var(--ivory);
+  color: var(--paper);
+  padding: 12px 18px;
+}
+.skip-link:focus { top: 12px; }
+
+.masthead {
+  height: 84px;
+  max-width: 1280px;
+  margin: auto;
+  padding: 0 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  color: inherit;
+  text-decoration: none;
+  font: 22px/1.1 var(--serif);
+  letter-spacing: .2em;
+}
+.brand small { display: block; margin-top: 7px; font: 9px/1 var(--sans); letter-spacing: .22em; color: var(--gold); }
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 42px;
+  border-top: 1px solid var(--gold);
+  border-bottom: 1px solid var(--gold);
+  color: var(--gold);
+  font: italic 29px/1 var(--serif);
+}
+.edition { margin: 0; color: var(--muted); font: 10px/1 var(--serif); letter-spacing: .18em; }
+
+main { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+.hero { max-width: 860px; padding: 78px 0 58px; }
+.eyebrow, .step-number { margin: 0 0 13px; color: var(--gold); font: 10px/1.4 var(--serif); letter-spacing: .26em; }
+h1, h2 { font-family: var(--serif); font-weight: 400; }
+h1 { margin: 0; font-size: clamp(42px, 6vw, 72px); line-height: 1.2; letter-spacing: .1em; }
+.hero-copy { max-width: 750px; margin: 28px 0 0; color: var(--muted); font: 16px/2 var(--serif); }
+.hero-notes { display: flex; gap: 0; margin-top: 38px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.hero-notes p { flex: 1; min-width: 0; margin: 0; padding: 16px 20px; border-right: 1px solid var(--line); }
+.hero-notes p:first-child { padding-left: 0; }
+.hero-notes p:last-child { border-right: 0; }
+.hero-notes strong, .hero-notes span { display: block; }
+.hero-notes strong { margin-bottom: 7px; color: var(--gold); font: 10px/1.4 var(--serif); letter-spacing: .12em; }
+.hero-notes span { color: var(--muted); font-size: 12px; line-height: 1.6; }
+
+.form-shell { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 58px; align-items: start; padding: 20px 0 100px; }
+.progress-panel { position: sticky; top: 25px; padding: 28px 0; }
+.progress-orbit {
+  width: 76px;
+  height: 76px;
+  display: grid;
+  place-content: center;
+  grid-template-columns: auto auto;
+  align-items: baseline;
+  border: 1px solid var(--gold);
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 7px var(--paper), inset 0 0 0 8px var(--line);
+  font: 31px/1 var(--serif);
+}
+.progress-orbit small { margin-left: 4px; color: var(--muted); font-size: 11px; }
+.progress-copy { margin-top: 22px; }
+.progress-copy p { margin: 0 0 11px; font: 17px/1.4 var(--serif); }
+.progress-track { height: 2px; background: var(--line); overflow: hidden; }
+.progress-track span { display: block; width: 12.5%; height: 100%; background: var(--rose); transition: width .3s ease; }
+.step-list { list-style: none; padding: 0; margin: 28px 0 0; counter-reset: steps; }
+.step-list li { position: relative; padding: 7px 0 7px 25px; color: #8f7881; font: 12px/1.5 var(--serif); transition: color .2s; }
+.step-list li::before { counter-increment: steps; content: "0" counter(steps); position: absolute; left: 0; color: var(--line-bright); font-size: 9px; }
+.step-list li.is-current { color: var(--ivory); }
+.step-list li.is-current::after { content: ""; position: absolute; left: -12px; top: 14px; width: 5px; height: 5px; background: var(--rose); transform: rotate(45deg); }
+.step-list li.is-complete { color: var(--gold); }
+.autosave-status { margin: 25px 0 0; color: #9e8790; font-size: 10px; line-height: 1.7; }
+
+#summoning-form { min-width: 0; }
+.form-step {
+  min-height: 620px;
+  padding: clamp(30px, 5vw, 58px);
+  border: 1px solid var(--line);
+  background: linear-gradient(145deg, rgba(57,35,52,.96), rgba(39,24,36,.96));
+  box-shadow: 0 24px 90px rgba(0,0,0,.22);
+  animation: reveal .3s ease both;
+}
+@keyframes reveal { from { opacity: 0; transform: translateY(8px); } }
+.step-heading { margin-bottom: 44px; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
+.step-heading h2 { margin: 0; font-size: clamp(30px, 4vw, 43px); line-height: 1.25; letter-spacing: .06em; }
+.step-heading > p:last-child { margin: 14px 0 0; color: var(--muted); font: 14px/1.9 var(--serif); }
+
+.field { position: relative; margin: 0 0 38px; min-width: 0; }
+.field-grid { display: grid; gap: 22px; }
+.field-grid.two-columns { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.field-grid.three-columns { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.field-grid > .field { margin-bottom: 28px; }
+fieldset { padding: 0; border: 0; min-width: 0; }
+label, legend, .field-label { display: block; font: 15px/1.7 var(--serif); }
+legend { width: 100%; margin-bottom: 13px; }
+.required, .optional { margin-left: 8px; font: 9px/1 var(--sans); letter-spacing: .08em; vertical-align: .15em; }
+.required { color: var(--rose); }
+.optional { color: var(--muted); }
+input, textarea, select {
+  width: 100%;
+  margin-top: 9px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: rgba(19, 12, 19, .28);
+  color: var(--ivory);
+  padding: 14px 15px;
+  outline: none;
+  transition: border-color .2s, background .2s, box-shadow .2s;
+}
+textarea { resize: vertical; min-height: 88px; line-height: 1.75; }
+select { min-height: 51px; }
+input::placeholder, textarea::placeholder { color: #8f7982; }
+code { color: var(--gold); font: .95em/1.6 ui-monospace, "SFMono-Regular", Consolas, monospace; overflow-wrap: anywhere; }
+input:hover, textarea:hover, select:hover { border-color: var(--line-bright); }
+input:focus, textarea:focus, select:focus { border-color: var(--rose); background: rgba(19, 12, 19, .5); box-shadow: 0 0 0 3px rgba(228,140,167,.11); }
+.is-invalid { border-color: var(--danger) !important; box-shadow: 0 0 0 2px rgba(255,180,189,.12) !important; }
+.hint, .counter { margin: 8px 0 0; color: #a48c95; font-size: 10px; line-height: 1.6; }
+.counter { text-align: right; }
+.compact-label { color: var(--muted); font-size: 11px; }
+.subfield { margin-top: 17px; color: var(--muted); font-size: 12px; }
+
+.choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.choice-grid-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.choice {
+  position: relative;
+  min-height: 56px;
+  display: flex;
+  align-items: stretch;
+  cursor: pointer;
+}
+.choice input, .chip input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
+.choice span {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 13px 15px 13px 39px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font: 13px/1.5 var(--serif);
+  transition: border-color .2s, background .2s, color .2s;
+}
+.choice span::before {
+  content: "";
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  border: 1px solid var(--gold);
+  transform: translateY(-50%) rotate(45deg);
+}
+.choice b { color: inherit; font-weight: 400; }
+.choice small { margin-top: 4px; color: #9e8790; font: 9px/1.5 var(--sans); }
+.choice input:checked + span { border-color: var(--rose); background: rgba(141,54,84,.19); color: var(--ivory); }
+.choice input:checked + span::before { background: var(--rose); border-color: var(--rose); box-shadow: 0 0 12px rgba(228,140,167,.55); }
+.choice input:focus-visible + span, .chip input:focus-visible + span { outline: 3px solid var(--rose); outline-offset: 3px; }
+
+.rights-box { padding: 21px 23px 11px; border: 1px solid var(--gold); background: rgba(196,163,112,.055); }
+.check-line { position: relative; display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; color: var(--muted); cursor: pointer; font: 12px/1.75 var(--sans); }
+.check-line input { width: 17px; height: 17px; flex: 0 0 auto; margin: 3px 0 0; padding: 0; accent-color: var(--rose); }
+.check-line span { min-width: 0; }
+
+.chip-grid { display: flex; flex-wrap: wrap; gap: 9px; }
+.chip { position: relative; cursor: pointer; }
+.chip span { display: block; padding: 9px 13px; border: 1px solid var(--line); color: var(--muted); font: 11px/1.4 var(--sans); transition: .2s; }
+.chip input:checked + span { border-color: var(--rose); background: rgba(141,54,84,.23); color: var(--ivory); }
+.chip input:disabled + span { opacity: .33; cursor: default; }
+.limit-note { position: absolute; right: 0; top: 1px; margin: 0; color: var(--gold); font: 10px/1 var(--serif); }
+.reaction-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.reaction-card { padding: 18px; border-top: 1px solid var(--gold); background: rgba(15,8,15,.16); }
+.reaction-card label { font-size: 13px; }
+.reaction-card select { font-size: 12px; }
+.line-stack { display: grid; gap: 8px; }
+.line-stack input { margin-top: 0; }
+.links-editor { display: grid; gap: 10px; }
+.links-editor > div { display: grid; grid-template-columns: minmax(130px, .72fr) minmax(220px, 1.6fr); gap: 10px; }
+.links-editor input { margin-top: 0; }
+.secret-field { padding: 25px; border: 1px solid var(--rose-deep); background: radial-gradient(circle at 100% 0, rgba(143,56,85,.18), transparent 55%); }
+.service-note { margin: 0px 0 38px; padding: 19px 21px; border-left: 3px solid var(--gold); background: rgba(196,163,112,.07); }
+.service-note strong { display: block; color: var(--gold); font: 13px/1.5 var(--serif); letter-spacing: .06em; }
+.service-note p { margin: 7px 0 0; color: var(--muted); font-size: 11px; line-height: 1.85; }
+.final-consent { margin-bottom: 0; }
+
+.form-actions { display: flex; justify-content: flex-end; gap: 12px; padding-top: 22px; }
+.primary-button, .secondary-button, .text-button {
+  border-radius: 0;
+  padding: 14px 22px;
+  transition: transform .15s, filter .15s, background .15s;
+}
+.primary-button { min-width: 190px; border: 1px solid var(--ivory); background: var(--ivory); color: #321e2b; font: 15px/1 var(--serif); letter-spacing: .06em; }
+.primary-button span { margin-left: 25px; }
+.secondary-button { border: 1px solid var(--line); background: transparent; color: var(--muted); }
+.text-button { border: 0; border-bottom: 1px solid var(--line-bright); background: transparent; color: var(--muted); padding: 7px 2px; }
+.primary-button:hover:not(:disabled), .secondary-button:hover:not(:disabled), .text-button:hover:not(:disabled) { filter: brightness(1.12); }
+.primary-button:active:not(:disabled), .secondary-button:active:not(:disabled), .text-button:active:not(:disabled) { transform: translateY(1px); }
+.submit-button { background: var(--rose); border-color: var(--rose); color: #25141e; }
+.form-error { margin-top: 16px; padding: 13px 16px; border: 1px solid var(--danger); color: var(--danger); font-size: 12px; line-height: 1.7; }
+
+.review-content { display: grid; gap: 10px; }
+.review-group { padding: 22px 0; border-bottom: 1px solid var(--line); }
+.review-group:first-child { padding-top: 0; }
+.review-group h3 { margin: 0 0 14px; color: var(--gold); font: 12px/1.5 var(--serif); letter-spacing: .13em; }
+.review-row { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 20px; padding: 5px 0; }
+.review-row dt { color: #a58d96; font-size: 10px; line-height: 1.7; }
+.review-row dd { margin: 0; color: var(--ivory); font: 12px/1.7 var(--serif); white-space: pre-wrap; overflow-wrap: anywhere; }
+.preview-warning { margin-top: 26px; padding: 18px 20px; border-left: 2px solid var(--gold); background: rgba(196,163,112,.07); }
+.preview-warning strong { color: var(--gold); font: 13px/1.4 var(--serif); }
+.preview-warning p { margin: 7px 0 0; color: var(--muted); font-size: 11px; line-height: 1.7; }
+.export-actions { display: flex; gap: 20px; margin-top: 24px; }
+
+.success-panel { max-width: 760px; margin: 60px auto 130px; padding: 78px 40px; text-align: center; border-top: 1px solid var(--gold); border-bottom: 1px solid var(--gold); }
+.success-panel h2 { margin: 20px 0; font-size: clamp(31px, 5vw, 50px); }
+.success-panel > p:not(.eyebrow) { color: var(--muted); font: 14px/2 var(--serif); }
+.success-panel .text-button { margin-top: 24px; }
+.seal { width: 78px; height: 78px; display: grid; place-items: center; margin: 26px auto; border: 1px solid var(--rose); border-radius: 50%; color: var(--rose); font: italic 36px/1 var(--serif); box-shadow: inset 0 0 0 7px var(--paper), inset 0 0 0 8px var(--line), 0 0 30px rgba(228,140,167,.13); }
+
+footer { width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 25px 0; display: flex; justify-content: space-between; border-top: 1px solid var(--line); color: #8e7680; font: 9px/1 var(--serif); letter-spacing: .15em; }
+.toast { position: fixed; z-index: 30; left: 50%; bottom: 25px; transform: translate(-50%, 18px); max-width: min(430px, calc(100% - 30px)); padding: 12px 18px; background: var(--ivory); color: var(--paper); opacity: 0; pointer-events: none; font-size: 12px; transition: .2s; box-shadow: 0 10px 35px rgba(0,0,0,.3); }
+.toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+
+@media (max-width: 850px) {
+  .form-shell { grid-template-columns: 1fr; gap: 16px; }
+  .progress-panel { position: sticky; z-index: 8; top: 0; margin: 0 -20px; padding: 12px 20px; display: flex; align-items: center; gap: 14px; background: rgba(33,22,32,.94); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+  .progress-orbit { width: 48px; height: 48px; flex: 0 0 48px; box-shadow: inset 0 0 0 4px var(--paper), inset 0 0 0 5px var(--line); font-size: 21px; }
+  .progress-copy { flex: 1; margin: 0; }
+  .progress-copy p { margin: 0 0 8px; font-size: 13px; }
+  .step-list, .autosave-status { display: none; }
+}
+
+@media (max-width: 680px) {
+  .masthead { height: 62px; padding: 0 18px; }
+  .brand { font-size: 17px; letter-spacing: .15em; }
+  .brand small { font-size: 7px; }
+  .brand-mark { width: 27px; height: 34px; font-size: 24px; }
+  .edition { display: none; }
+  main { width: min(100% - 28px, 1180px); }
+  .hero { padding: 48px 0 34px; }
+  h1 { font-size: 39px; letter-spacing: .06em; }
+  .hero-copy { margin-top: 19px; font-size: 14px; line-height: 1.9; }
+  .hero-notes { flex-direction: column; margin-top: 27px; }
+  .hero-notes p, .hero-notes p:first-child { padding: 11px 0; border-right: 0; border-bottom: 1px solid var(--line); }
+  .hero-notes p:last-child { border-bottom: 0; }
+  .hero-notes strong, .hero-notes span { display: inline; }
+  .hero-notes strong { margin-right: 10px; }
+  .form-shell { padding-bottom: 70px; }
+  .progress-panel { margin: 0 -14px; padding: 9px 14px; }
+  .form-step { min-height: 0; padding: 28px 20px; }
+  .step-heading { margin-bottom: 31px; padding-bottom: 21px; }
+  .step-heading h2 { font-size: 30px; }
+  .field { margin-bottom: 31px; }
+  .field-grid.two-columns, .field-grid.three-columns, .reaction-grid { grid-template-columns: 1fr; gap: 0; }
+  .choice-grid, .choice-grid-cards { grid-template-columns: 1fr; }
+  .choice span { min-height: 52px; }
+  .rights-box, .secret-field { padding: 19px 17px 8px; }
+  .secret-field { padding-bottom: 18px; }
+  .reaction-card { margin-bottom: 11px; }
+  .links-editor > div { grid-template-columns: 1fr; gap: 7px; padding-bottom: 13px; border-bottom: 1px solid var(--line); }
+  .form-actions { position: sticky; z-index: 7; bottom: 0; margin: 0 -14px; padding: 12px 14px calc(12px + env(safe-area-inset-bottom)); background: rgba(33,22,32,.94); backdrop-filter: blur(12px); border-top: 1px solid var(--line); }
+  .primary-button { flex: 1; min-width: 0; }
+  .secondary-button { min-width: 92px; padding-left: 14px; padding-right: 14px; }
+  .review-row { grid-template-columns: 1fr; gap: 2px; }
+  .export-actions { flex-wrap: wrap; }
+  footer span:nth-child(2) { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; scroll-behavior: auto !important; transition: none !important; }
+}
+
+</style>
+</head>
+<body>
+  <a class="skip-link" href="#summoning-form">フォームへ移動</a>
+
+  <header class="masthead">
+    <a class="brand" href="#top" aria-label="ノクターリウム 世界観召喚票 トップ">
+      <span class="brand-mark" aria-hidden="true">N</span>
+      <span>NOCTARIUM<small>WORLD SUMMONING FORM</small></span>
+    </a>
+    <p class="edition">PLAYABLE CARD / ENTRY No. 01</p>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="hero-title">
+      <p class="eyebrow">世界観を、動きにする。</p>
+      <h1 id="hero-title">世界観召喚票</h1>
+      <p class="hero-copy">ゲームのルールを考える必要はありません。あなたのキャラクター、店、作品について教えてください。答えから、動き・速度・台詞・距離・いたずら・勝敗時の反応を調律します。</p>
+      <div class="hero-notes" aria-label="ご案内">
+        <p><strong>回答時間の目安</strong><span>10〜15分</span></p>
+        <p><strong>料金の発生</strong><span>この送信だけでは発生しません</span></p>
+        <p><strong>途中保存</strong><span>この端末のブラウザへ自動保存</span></p>
+      </div>
+    </section>
+
+    <div class="form-shell">
+      <aside class="progress-panel" aria-label="入力の進み具合">
+        <div class="progress-orbit" aria-hidden="true">
+          <span id="progress-number">1</span><small>/ 8</small>
+        </div>
+        <div class="progress-copy">
+          <p id="progress-label">入口</p>
+          <div class="progress-track"><span id="progress-bar"></span></div>
+        </div>
+        <ol class="step-list">
+          <li data-step-indicator="0" class="is-current">入口</li>
+          <li data-step-indicator="1">世界の核</li>
+          <li data-step-indicator="2">距離と動き</li>
+          <li data-step-indicator="3">感情と異変</li>
+          <li data-step-indicator="4">材料と言葉</li>
+          <li data-step-indicator="5">出口</li>
+          <li data-step-indicator="6">秘密と確認</li>
+          <li data-step-indicator="7">封印前確認</li>
+        </ol>
+        <p class="autosave-status" id="autosave-status" aria-live="polite">まだ何も刻まれていません</p>
+      </aside>
+
+      <form id="summoning-form" novalidate>
+        <section class="form-step is-active" data-step="0" aria-labelledby="step-0-title">
+          <div class="step-heading">
+            <p class="step-number">LAYER 00</p>
+            <h2 id="step-0-title">入口</h2>
+            <p>連絡先と、今回動かしたい世界を教えてください。</p>
+          </div>
+
+          <div class="field-grid two-columns">
+            <div class="field">
+              <label for="applicant_name">お名前／活動名 <span class="required">必須</span></label>
+              <input id="applicant_name" name="applicant_name" autocomplete="name" required placeholder="例：星見 菫／すみれ堂">
+            </div>
+            <div class="field">
+              <label for="email">返信先メールアドレス <span class="required">必須</span></label>
+              <input id="email" name="email" type="email" autocomplete="email" required placeholder="you@example.com">
+              <p class="hint">受付可否と決済案内をお送りします。</p>
+            </div>
+          </div>
+
+          <fieldset class="field">
+            <legend>今回、遊べる名刺にするもの <span class="required">必須</span></legend>
+            <div class="choice-grid choice-grid-cards">
+              <label class="choice"><input type="radio" name="project_type" value="オリジナルキャラクター" required><span><b>オリジナルキャラクター</b><small>ひとりの性格や欲を動きへ</small></span></label>
+              <label class="choice"><input type="radio" name="project_type" value="店・ブランド"><span><b>店・ブランド</b><small>商品や空気を小さな体験へ</small></span></label>
+              <label class="choice"><input type="radio" name="project_type" value="小説・漫画・音楽・TRPGなどの作品"><span><b>作品</b><small>本編へつながる短い入口に</small></span></label>
+              <label class="choice"><input type="radio" name="project_type" value="自作の世界観"><span><b>自作の世界観</b><small>場所や法則そのものを動かす</small></span></label>
+              <label class="choice"><input type="radio" name="project_type" value="その他のオリジナル企画"><span><b>その他</b><small>次の層で自由に教えてください</small></span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="field rights-box">
+            <legend>権利についての確認 <span class="required">2項目すべて必須</span></legend>
+            <label class="check-line"><input type="checkbox" name="rights_owned" required><span>依頼対象は、自分が権利を持つオリジナルのもので、既存作品のキャラクターや実在人物を再現するものではありません。</span></label>
+            <label class="check-line"><input type="checkbox" name="materials_licensed" required><span>提供する画像・ロゴ・文章などについて、必要な利用権があります。</span></label>
+          </fieldset>
+
+          <fieldset class="field" data-limit="3">
+            <legend>おもな使い道 <span class="optional">3つまで</span></legend>
+            <p class="limit-note" aria-live="polite">0 / 3</p>
+            <div class="chip-grid">
+              <label class="chip"><input type="checkbox" name="usage" value="プロフィールリンク"><span>プロフィールリンク</span></label>
+              <label class="chip"><input type="checkbox" name="usage" value="紙の名刺・ショップカード"><span>紙の名刺・カード</span></label>
+              <label class="chip"><input type="checkbox" name="usage" value="展示・イベント"><span>展示・イベント</span></label>
+              <label class="chip"><input type="checkbox" name="usage" value="オンラインショップ"><span>オンラインショップ</span></label>
+              <label class="chip"><input type="checkbox" name="usage" value="作品ページ"><span>作品ページ</span></label>
+              <label class="chip"><input type="checkbox" name="usage" value="自分で遊ぶ・保存する"><span>自分で遊ぶ・保存</span></label>
+            </div>
+          </fieldset>
+        </section>
+
+        <section class="form-step" data-step="1" aria-labelledby="step-1-title" hidden>
+          <div class="step-heading">
+            <p class="step-number">LAYER 01</p>
+            <h2 id="step-1-title">その世界の核</h2>
+            <p>説明の上手さは要りません。いちばん大切なものから聞かせてください。</p>
+          </div>
+
+          <div class="field">
+            <label for="project_name">キャラクター名／店名／作品名 <span class="required">必須</span></label>
+            <input id="project_name" name="project_name" required placeholder="例：リュシアン／夜ふかし菓子店">
+          </div>
+
+          <div class="field">
+            <label for="one_line_intro">初めて会う人へ、一文で紹介するとしたら？ <span class="required">必須</span></label>
+            <textarea id="one_line_intro" name="one_line_intro" rows="3" required maxlength="240" placeholder="例：誰にでも優しいが、気づけば逃げ道を塞いでいる王子。"></textarea>
+            <p class="counter"><span data-count-for="one_line_intro">0</span> / 240</p>
+          </div>
+
+          <fieldset class="field" data-limit="3" data-exact="3">
+            <legend>この世界を表す言葉 <span class="required">ちょうど3つ</span></legend>
+            <p class="limit-note" aria-live="polite">0 / 3</p>
+            <div class="chip-grid">
+              <label class="chip"><input type="checkbox" name="world_keywords" value="可愛い"><span>可愛い</span></label>
+              <label class="chip"><input type="checkbox" name="world_keywords" value="優しい"><span>優しい</span></label>
+              <label class="chip"><input type="checkbox" name="world_keywords" value="不穏"><span>不穏</span></label>
+              <label class="chip"><input type="checkbox" name="world_keywords" value="上品"><span>上品</span></label>
+              <label class="chip"><input type="checkbox" name="world_keywords" value="陽気"><span>陽気</span></label>
+              <label class="chip"><input type="checkbox" name="world_keywords" value="静か"><span>静か</span></label>
+              <label class="chip"><input type="checkbox" name="world_keywords" value="毒っけ"><span>毒っけ</span></label>
+              <label class="chip"><input type="checkbox" name="world_keywords" value="気まぐれ"><span>気まぐれ</span></label>
+              <label class="chip"><input type="checkbox" name="world_keywords" value="執着"><span>執着</span></label>
+              <label class="chip"><input type="checkbox" name="world_keywords" value="退廃的"><span>退廃的</span></label>
+              <label class="chip"><input type="checkbox" name="world_keywords" value="神秘的"><span>神秘的</span></label>
+              <label class="chip"><input type="checkbox" name="world_keywords" value="機械的"><span>機械的</span></label>
+              <label class="chip"><input type="checkbox" name="world_keywords" value="素朴"><span>素朴</span></label>
+              <label class="chip"><input type="checkbox" name="world_keywords" value="混沌"><span>混沌</span></label>
+            </div>
+            <label class="subfield" for="world_keyword_other">選んだ3つだけでは説明しきれない部分があれば</label>
+            <input id="world_keyword_other" name="world_keyword_other" placeholder="例：可愛いけれど、子どもっぽくはない。">
+          </fieldset>
+
+          <div class="field">
+            <label for="deepest_desire">いちばん欲しがっているものは何ですか？ <span class="required">必須</span></label>
+            <textarea id="deepest_desire" name="deepest_desire" rows="4" required placeholder="キャラクターなら本人の欲。店なら来客へ持ち帰ってほしいもの。作品なら触れた人へ残したい感触。"></textarea>
+          </div>
+        </section>
+
+        <section class="form-step" data-step="2" aria-labelledby="step-2-title" hidden>
+          <div class="step-heading">
+            <p class="step-number">LAYER 02</p>
+            <h2 id="step-2-title">距離と動き</h2>
+            <p>訪れた人をどう迎え、どんな速度で近づく世界でしょう。</p>
+          </div>
+
+          <div class="field-grid two-columns">
+            <div class="field">
+              <label for="character_collects">キャラも、集めるものを拾いますか？ <span class="optional">おまかせ可</span></label>
+              <select id="character_collects" name="character_collects" required>
+                <option>プレイヤーだけが拾う</option>
+                <option>キャラも拾う</option>
+                <option selected>おまかせ</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="chase_behavior">キャラは、あなたを追いかけますか？ <span class="optional">おまかせ可</span></label>
+              <select id="chase_behavior" name="chase_behavior" required>
+                <option>最初から追いかける</option>
+                <option>何かをきっかけに追いかけ始める</option>
+                <option>追いかけず、自分の道を動く</option>
+                <option selected>おまかせ</option>
+              </select>
+            </div>
+          </div>
+          <p class="hint">迷ったら「おまかせ」のままで大丈夫です。きっかけや動きの希望があれば、この下の補足欄で教えてください。</p>
+
+          <div class="field-grid two-columns">
+            <div class="field">
+              <label for="first_attitude">初めて来た人への態度 <span class="required">必須</span></label>
+              <select id="first_attitude" name="first_attitude" required>
+                <option value="">選んでください</option>
+                <option>歓迎する</option><option>観察する</option><option>試す</option>
+                <option>からかう</option><option>警戒する</option><option>無関心なふりをする</option>
+                <option>丁寧に案内する</option><option>執着を見せる</option>
+                <option>毎回態度が違う</option><option>その他</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="distance_style">距離の詰め方 <span class="required">必須</span></label>
+              <select id="distance_style" name="distance_style" required>
+                <option value="">選んでください</option>
+                <option>最初から近い</option><option>少しずつ近づく</option><option>一定の距離を保つ</option>
+                <option>急に近くへ現れる</option><option>相手が動くまで待つ</option><option>近づいたり逃げたりする</option>
+              </select>
+            </div>
+          </div>
+
+          <fieldset class="field" data-limit="2">
+            <legend>どんなふうに動きそうですか？ <span class="required">1〜2つ</span></legend>
+            <p class="limit-note" aria-live="polite">0 / 2</p>
+            <div class="choice-grid">
+              <label class="choice"><input type="checkbox" name="movement_style" value="滑るように静か"><span>滑るように静か</span></label>
+              <label class="choice"><input type="checkbox" name="movement_style" value="ふわふわ浮く"><span>ふわふわ浮く</span></label>
+              <label class="choice"><input type="checkbox" name="movement_style" value="元気に跳ねる"><span>元気に跳ねる</span></label>
+              <label class="choice"><input type="checkbox" name="movement_style" value="せわしなく小刻みに動く"><span>せわしなく小刻みに動く</span></label>
+              <label class="choice"><input type="checkbox" name="movement_style" value="堂々とゆっくり"><span>堂々とゆっくり</span></label>
+              <label class="choice"><input type="checkbox" name="movement_style" value="一定条件で突然速くなる"><span>一定条件で突然速くなる</span></label>
+              <label class="choice"><input type="checkbox" name="movement_style" value="不規則に瞬間移動する"><span>不規則に瞬間移動する</span></label>
+              <label class="choice"><input type="checkbox" name="movement_style" value="ほとんど動かない"><span>ほとんど動かない</span></label>
+            </div>
+          </fieldset>
+
+          <div class="field">
+            <label for="attitude_notes">ほかに、近づき方や動きで伝えたいこと <span class="optional">任意</span></label>
+            <textarea id="attitude_notes" name="attitude_notes" rows="3" placeholder="例：普段は遅いが、好物を取られると急に速くなる。"></textarea>
+          </div>
+        </section>
+
+        <section class="form-step" data-step="3" aria-labelledby="step-3-title" hidden>
+          <div class="step-heading">
+            <p class="step-number">LAYER 03</p>
+            <h2 id="step-3-title">感情が挙動になる場所</h2>
+            <p>プレイヤーの行動に、キャラクターや世界がどんな反応を返すか決めます。</p>
+          </div>
+
+          <div class="field">
+            <label for="base_difficulty">ゲームの難しさ <span class="required">必須</span></label>
+            <select id="base_difficulty" name="base_difficulty" required>
+              <option value="">選んでください</option><option>かなり遊びやすく</option><option>ほどよく遊びごたえ</option>
+              <option>少し手強く</option><option>おまかせ</option>
+            </select>
+            <p class="hint">通常ゲームの難しさの基調です。通常版とは別の高難易度モード追加は、追加オプションとして受付時にご案内します。</p>
+          </div>
+
+          <div class="reaction-grid">
+            <div class="field reaction-card">
+              <label for="reaction_success">プレイヤーが上手にできたとき、キャラクター／世界は？ <span class="required">必須</span></label>
+              <select id="reaction_success" name="reaction_success" required>
+                <option value="">反応を選ぶ</option><option>素直に褒める</option><option>悔しがる</option><option>自分の手柄にする</option>
+                <option>黙ってご褒美を置く</option><option>難易度を上げる</option><option>笑う</option><option>近づく</option><option>その他</option>
+              </select>
+            </div>
+            <div class="field reaction-card">
+              <label for="reaction_failure">プレイヤーが失敗したとき、キャラクター／世界は？ <span class="required">必須</span></label>
+              <select id="reaction_failure" name="reaction_failure" required>
+                <option value="">反応を選ぶ</option><option>慰める</option><option>笑う</option><option>怒る</option><option>助ける</option>
+                <option>何かを奪う</option><option>難易度を下げる</option><option>近づく</option><option>その他</option>
+              </select>
+            </div>
+            <div class="field reaction-card">
+              <label for="reaction_idle">プレイヤーが操作せずにいるとき、キャラクター／世界は？ <span class="required">必須</span></label>
+              <select id="reaction_idle" name="reaction_idle" required>
+                <option value="">反応を選ぶ</option><option>拗ねる</option><option>眠る</option><option>勝手に進める</option><option>近づく</option>
+                <option>アイテムを隠す</option><option>画面から消える</option><option>静かに待つ</option><option>その他</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="reaction_notes">三つの反応について、キャラクター／世界側の補足があれば <span class="optional">任意</span></label>
+            <textarea id="reaction_notes" name="reaction_notes" rows="3" placeholder="選択肢の「その他」や、細かなニュアンスはこちらへ。"></textarea>
+          </div>
+
+          <div class="field-grid two-columns">
+            <div class="field">
+              <label for="change_trigger">キャラクター／世界の態度が大きく変わるきっかけ <span class="required">必須</span></label>
+              <select id="change_trigger" name="change_trigger" required>
+                <option value="">選んでください</option><option>アイテムを半分以上取られる</option><option>無視される</option>
+                <option>残り時間が少なくなる</option><option>プレイヤーが失敗する</option><option>特定のアイテムを取る</option>
+                <option>最後まで態度を変えない</option><option>その他</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="lie_style">キャラクター／世界は、プレイヤーに嘘をつきますか？ <span class="required">必須</span></label>
+              <select id="lie_style" name="lie_style" required>
+                <option value="">選んでください</option><option>嘘をつかない</option><option>分かりやすい嘘をつく</option>
+                <option>本当のことへ少しだけ嘘を混ぜる</option><option>プレイヤーを助けるために嘘をつく</option>
+                <option>自分の気持ちについてだけ嘘をつく</option><option>台詞ではなく行動で騙す</option><option>何も説明しない</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="trigger_detail">態度が変わるきっかけの詳細 <span class="optional">任意</span></label>
+            <textarea id="trigger_detail" name="trigger_detail" rows="3" placeholder="例：最後の一個を取られた瞬間だけ、笑わなくなる。"></textarea>
+          </div>
+        </section>
+
+        <section class="form-step" data-step="4" aria-labelledby="step-4-title" hidden>
+          <div class="step-heading">
+            <p class="step-number">LAYER 04</p>
+            <h2 id="step-4-title">触れられる材料と言葉</h2>
+            <p>盤上へ置くもの、色、異変、声を集めます。</p>
+          </div>
+
+          <div class="field">
+            <label for="collectible">ゲーム内で集めるものを一つ <span class="required">必須</span></label>
+            <input id="collectible" name="collectible" required placeholder="例：白薔薇／毒菓子／記憶の欠片／おまかせ">
+          </div>
+
+          <aside class="service-note" aria-label="画像素材と追加料金について">
+            <strong>画像素材について</strong>
+            <p>お手持ちの画像、ロゴ、絵文字・記号・単純図形での構成は基本制作に含まれます。メイン画像またはアイテム画像の新規制作は、確認のやりとりを含む追加オプションです。</p>
+          </aside>
+
+          <div class="field">
+            <span class="field-label">象徴する色を三色 <span class="required">必須</span></span>
+            <div class="field-grid three-columns">
+              <label class="compact-label">第一色<input name="color_1" required placeholder="例：象牙色 #F8F2E8"></label>
+              <label class="compact-label">第二色<input name="color_2" required placeholder="例：薄青 #A9BED2"></label>
+              <label class="compact-label">第三色<input name="color_3" required placeholder="例：深紅 #8E2F45"></label>
+            </div>
+            <p class="hint">色名・カラーコード、または「おまかせ」で構いません。</p>
+          </div>
+
+          <div class="field-grid two-columns">
+            <div class="field">
+              <label for="symbol_object">象徴する物を一つ <span class="required">必須</span></label>
+              <input id="symbol_object" name="symbol_object" required placeholder="例：棘の残った白薔薇">
+              <p class="hint">ゲーム内で集めるものと同じでも構いません。</p>
+            </div>
+            <div class="field">
+              <label for="image_plan">メイン画像について <span class="required">必須</span></label>
+              <select id="image_plan" name="image_plan" required>
+                <option value="">選んでください</option><option>自分で用意した画像を使う（基本料金内）</option>
+                <option>ロゴ・紋章・絵文字・記号で構成する（基本料金内）</option>
+                <option>ノクターリウムへ新規制作を依頼する（追加料金）</option><option>まだ決めていない／相談したい</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="main_image_notes">メイン画像の補足 <span class="optional">任意</span></label>
+            <textarea id="main_image_notes" name="main_image_notes" rows="3" placeholder="使いたい画像、構図、表情、ロゴの扱いなど。資料URLは LAYER 06 にまとめて記入できます。"></textarea>
+          </div>
+
+          <div class="field-grid two-columns">
+            <div class="field">
+              <label for="collectible_image_plan">集めるアイテムの見た目 <span class="required">必須</span></label>
+              <select id="collectible_image_plan" name="collectible_image_plan" required>
+                <option value="">選んでください</option><option>自分で用意した画像を使う（基本料金内）</option>
+                <option>絵文字・記号・単純図形で作る（基本料金内）</option>
+                <option>メイン画像や既存素材から切り出す（基本料金内）</option>
+                <option>ノクターリウムへ新規制作を依頼する（追加料金）</option><option>おまかせ／相談したい</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="collectible_image_notes">アイテム画像の補足 <span class="optional">任意</span></label>
+              <textarea id="collectible_image_notes" name="collectible_image_notes" rows="3" placeholder="例：白薔薇を3種類。輪郭は細く、拾うと花弁がほどける。"></textarea>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="world_oddity">色・言葉・台詞の雰囲気へ、少しだけ混ぜたい違和感はありますか？ <span class="optional">任意</span></label>
+            <textarea id="world_oddity" name="world_oddity" rows="4" placeholder="空欄でも構いません。ゲームの仕組みは変えず、雰囲気へふんわり反映します。"></textarea>
+            <p class="hint">新しいルールや機能を追加する欄ではありません。ゲームの基本仕様を変えたい場合は、最後の自由記入欄でご相談ください。</p>
+          </div>
+
+          <div class="field">
+            <label for="desired_lines">言ってほしい台詞 <span class="optional">任意／必要な数だけ</span></label>
+            <textarea id="desired_lines" name="desired_lines" rows="7" maxlength="3000" placeholder="一行に一つずつ記入してください。&#10;例：やっと来た。&#10;例：それを取ると思った。&#10;例：もう帰るの？"></textarea>
+            <p class="hint">「提供台詞だけを使ってほしい」を選ぶ場合は、ゲーム中に使いたい台詞をここへすべて記入してください。</p>
+            <p class="counter"><span data-count-for="desired_lines">0</span> / 3000</p>
+          </div>
+
+          <div class="field-grid two-columns">
+            <div class="field">
+              <label for="forbidden_words">絶対に言わない言葉・避けたい口調 <span class="optional">任意</span></label>
+              <textarea id="forbidden_words" name="forbidden_words" rows="3" placeholder="例：乱暴な命令口調は使わない。"></textarea>
+            </div>
+            <div class="field">
+              <label for="line_permission">台詞の追加範囲 <span class="required">必須</span></label>
+              <select id="line_permission" name="line_permission" required>
+                <option value="">選んでください</option><option>全台詞をおまかせ</option><option>提供台詞を元に追加してよい</option><option>提供台詞だけを使ってほしい</option>
+              </select>
+              <p class="hint">提供台詞だけを使う場合は、上の台詞欄が必須になります。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-step" data-step="5" aria-labelledby="step-5-title" hidden>
+          <div class="step-heading">
+            <p class="step-number">LAYER 05</p>
+            <h2 id="step-5-title">遊び終わったあとの出口</h2>
+            <p>最後に残す感触と、その先へつなぐ扉を決めます。</p>
+          </div>
+
+          <fieldset class="field" data-limit="2">
+            <legend>遊び終わったあと、どんな気持ちや衝動を残したいですか？ <span class="required">1〜2つ</span></legend>
+            <p class="limit-note" aria-live="polite">0 / 2</p>
+            <div class="chip-grid">
+              <label class="chip"><input type="checkbox" name="ending_feeling" value="可愛いと思ってほしい"><span>可愛い</span></label>
+              <label class="chip"><input type="checkbox" name="ending_feeling" value="笑ってほしい"><span>笑ってほしい</span></label>
+              <label class="chip"><input type="checkbox" name="ending_feeling" value="少し怖がってほしい"><span>少し怖い</span></label>
+              <label class="chip"><input type="checkbox" name="ending_feeling" value="キャラクターを好きになってほしい"><span>好きになってほしい</span></label>
+              <label class="chip"><input type="checkbox" name="ending_feeling" value="店へ行きたくなってほしい"><span>店へ行きたい</span></label>
+              <label class="chip"><input type="checkbox" name="ending_feeling" value="作品の続きが気になってほしい"><span>続きが気になる</span></label>
+              <label class="chip"><input type="checkbox" name="ending_feeling" value="もう一度遊びたくなってほしい"><span>もう一度遊びたい</span></label>
+              <label class="chip"><input type="checkbox" name="ending_feeling" value="よく分からないまま忘れられなくなってほしい"><span>忘れられない</span></label>
+              <label class="chip"><input type="checkbox" name="ending_feeling" value="自分の世界が動くのを眺めて満足したい"><span>自分で眺めて満足</span></label>
+              <label class="chip"><input type="checkbox" name="ending_feeling" value="自分の世界へ帰ってきたように感じたい"><span>自分の世界へ帰る</span></label>
+              <label class="chip"><input type="checkbox" name="ending_feeling" value="ただ楽しく遊び終えたい"><span>ただ楽しく遊びたい</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="field" data-limit="3">
+            <legend>最後に表示したいもの <span class="required">1〜3つ</span></legend>
+            <p class="limit-note" aria-live="polite">0 / 3</p>
+            <div class="chip-grid">
+              <label class="chip"><input type="checkbox" name="ending_destination" value="紹介文"><span>紹介文</span></label>
+              <label class="chip"><input type="checkbox" name="ending_destination" value="プロフィール"><span>プロフィール</span></label>
+              <label class="chip"><input type="checkbox" name="ending_destination" value="ショップ"><span>ショップ</span></label>
+              <label class="chip"><input type="checkbox" name="ending_destination" value="作品販売ページ"><span>作品販売ページ</span></label>
+              <label class="chip"><input type="checkbox" name="ending_destination" value="SNS"><span>SNS</span></label>
+              <label class="chip"><input type="checkbox" name="ending_destination" value="予約ページ"><span>予約ページ</span></label>
+              <label class="chip"><input type="checkbox" name="ending_destination" value="ゲームの結果だけ"><span>ゲームの結果だけ</span></label>
+              <label class="chip"><input type="checkbox" name="ending_destination" value="もう一度遊ぶボタン"><span>もう一度遊ぶ</span></label>
+              <label class="chip"><input type="checkbox" name="ending_destination" value="自分用の短いメッセージ"><span>自分用の一言</span></label>
+            </div>
+          </fieldset>
+
+          <div class="field">
+            <span class="field-label">表示するリンク <span class="optional">最大3件・任意</span></span>
+            <div class="links-editor">
+              <div><input name="link_label_1" placeholder="リンク名 1"><input name="link_url_1" type="url" placeholder="https://..."></div>
+              <div><input name="link_label_2" placeholder="リンク名 2"><input name="link_url_2" type="url" placeholder="https://..."></div>
+              <div><input name="link_label_3" placeholder="リンク名 3"><input name="link_url_3" type="url" placeholder="https://..."></div>
+            </div>
+          </div>
+
+          <fieldset class="field">
+            <legend>使わないでほしい演出・弱めたい表現 <span class="optional">複数選択可</span></legend>
+            <div class="chip-grid">
+              <label class="chip"><input type="checkbox" name="avoid_effects" value="点滅"><span>点滅</span></label>
+              <label class="chip"><input type="checkbox" name="avoid_effects" value="画面揺れ"><span>画面揺れ</span></label>
+              <label class="chip"><input type="checkbox" name="avoid_effects" value="追跡スピードが速い"><span>速い追跡</span></label>
+              <label class="chip"><input type="checkbox" name="avoid_effects" value="長時間しつこく追う"><span>しつこい追跡</span></label>
+              <label class="chip"><input type="checkbox" name="avoid_effects" value="ホラー表現"><span>ホラー表現</span></label>
+              <label class="chip"><input type="checkbox" name="avoid_effects" value="ゲームオーバー"><span>ゲームオーバー</span></label>
+              <label class="chip"><input type="checkbox" name="avoid_effects" value="からかう台詞"><span>からかう台詞</span></label>
+              <label class="chip"><input type="checkbox" name="avoid_effects" value="特になし"><span>特になし</span></label>
+            </div>
+            <p class="hint">追いかけ方の希望は「距離と動き」の選択欄で指定できます。ここでは、ほかに使わないでほしい演出や弱めたい表現を教えてください。</p>
+            <label class="subfield" for="avoid_effects_other">ほかに避けたいもの</label>
+            <input id="avoid_effects_other" name="avoid_effects_other" placeholder="自由にお書きください">
+          </fieldset>
+        </section>
+
+        <section class="form-step" data-step="6" aria-labelledby="step-6-title" hidden>
+          <div class="step-heading">
+            <p class="step-number">LAYER 06</p>
+            <h2 id="step-6-title">最後の秘密と受付確認</h2>
+            <p>表へ出さない核を一つだけ。それから、制作前に必要な情報を確認します。</p>
+          </div>
+
+          <div class="field secret-field">
+            <label for="secret_favorite">設定資料には書かれていないけれど、あなたが「これ」の密かに好きなところを一つ <span class="required">必須</span></label>
+            <textarea id="secret_favorite" name="secret_favorite" rows="5" required placeholder="この回答はそのまま公開せず、固有演出または最後の台詞へ静かに反映します。"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="reference_urls">参考資料のURL <span class="optional">任意</span></label>
+            <textarea id="reference_urls" name="reference_urls" rows="4" placeholder="設定資料、画像、作品ページなど。1行に1件ずつ。画像本体の受け渡しは受付後にご案内します。"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="public_url_slug">公開URLに使いたい名前 <span class="optional">任意</span></label>
+            <input id="public_url_slug" name="public_url_slug" minlength="3" maxlength="32" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" inputmode="url" autocapitalize="none" spellcheck="false" placeholder="例：lucien／rose-and-sugar">
+            <p class="hint">予定URL：<code>https://play.noctarium.jp/ここに入ります/</code><br>半角英小文字・数字・ハイフンで3〜32文字。空欄の場合は作品名から作成します。重複・使用できない名前の場合は、確認なしで末尾に短い識別子を追加します（例：<code>lucien-k7m4</code>）。</p>
+          </div>
+
+          <div class="field-grid two-columns">
+            <div class="field">
+              <label for="desired_timing">希望時期 <span class="optional">任意</span></label>
+              <select id="desired_timing" name="desired_timing">
+                <option value="">選択なし</option><option>急がない</option><option>2週間以内を希望</option><option>1か月以内を希望</option><option>決まった希望日がある</option>
+              </select>
+            </div>
+            <div class="field" id="desired-date-field" hidden>
+              <label for="desired_date">希望する公開日 <span class="required">必須</span></label>
+              <input id="desired_date" name="desired_date" type="date" disabled>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="anything_else">ほかに伝えておきたいこと <span class="optional">任意</span></label>
+            <textarea id="anything_else" name="anything_else" rows="4" placeholder="迷っていること、説明しにくかったこともここへ。"></textarea>
+          </div>
+
+          <fieldset class="field rights-box final-consent">
+            <legend>送信前の確認 <span class="required">必須</span></legend>
+            <label class="check-line"><input type="checkbox" name="scope_acknowledged" required><span>追跡を含むアイテム収集が基本形式で、追跡なしなどの別仕様や画像の新規制作は追加相談・追加オプションになることを確認しました。</span></label>
+            <label class="check-line"><input type="checkbox" name="no_contract_yet" required><span>この送信だけでは購入・契約が成立せず、受付確認後に決済案内が届くことを理解しました。</span></label>
+            <label class="check-line"><input type="checkbox" name="privacy_acknowledged" required><span>回答と連絡先が、受付判断・制作連絡・依頼内容の確認に使用されることに同意します。</span></label>
+          </fieldset>
+        </section>
+
+        <section class="form-step review-step" data-step="7" aria-labelledby="step-7-title" hidden>
+          <div class="step-heading">
+            <p class="step-number">FINAL SEAL</p>
+            <h2 id="step-7-title">封印前確認</h2>
+            <p>送る前に、召喚した内容を一度だけ見渡してください。</p>
+          </div>
+          <div id="review-content" class="review-content"></div>
+          <div id="preview-warning" class="preview-warning" hidden>
+            <strong>試運転モード</strong>
+            <p>送信先はまだ接続されていません。下のボタンは成功画面の動作確認を行い、外部には送信しません。</p>
+          </div>
+          <div class="export-actions">
+            <button class="text-button" type="button" id="copy-answers">回答をコピー</button>
+            <button class="text-button" type="button" id="download-answers">回答書を保存</button>
+          </div>
+        </section>
+
+        <div class="form-error" id="form-error" role="alert" hidden></div>
+        <div class="form-actions">
+          <button class="secondary-button" type="button" id="prev-button" hidden><span aria-hidden="true">←</span> 戻る</button>
+          <button class="primary-button" type="button" id="next-button">次の層へ <span aria-hidden="true">→</span></button>
+          <button class="primary-button submit-button" type="submit" id="submit-button" hidden>召喚票を送る <span aria-hidden="true">◆</span></button>
+        </div>
+      </form>
+    </div>
+
+    <section class="success-panel" id="success-panel" hidden aria-labelledby="success-title">
+      <p class="eyebrow">SUMMONING RECEIVED</p>
+      <div class="seal" aria-hidden="true">N</div>
+      <h2 id="success-title">召喚を受理しました。</h2>
+      <p>ご回答ありがとうございます。あなたの世界から、動き・距離・速度・台詞・異変を読み取ります。</p>
+      <p>内容と受付状況を確認し、制作可能な場合は決済ページをご案内します。</p>
+      <button class="text-button" type="button" id="return-to-form">回答へ戻る</button>
+    </section>
+  </main>
+
+  <footer>
+    <span>NOCTARIUM</span>
+    <span>YOUR WORLD, SET IN MOTION.</span>
+    <span>PLAYABLE CARD</span>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script>
+"use strict";
+
+const FORM_CONFIG = {
+  // Formspree等のPOST受付URLを設定してください。空欄では試運転モードになります。
+  endpoint: "",
+  storageKey: "noctarium-world-summoning-form-v2",
+  clearSavedAnswersAfterSuccessfulSubmit: false
+};
+
+const form = document.querySelector("#summoning-form");
+const steps = [...document.querySelectorAll(".form-step")];
+const nextButton = document.querySelector("#next-button");
+const prevButton = document.querySelector("#prev-button");
+const submitButton = document.querySelector("#submit-button");
+const errorBox = document.querySelector("#form-error");
+const progressNumber = document.querySelector("#progress-number");
+const progressLabel = document.querySelector("#progress-label");
+const progressBar = document.querySelector("#progress-bar");
+const progressIndicators = [...document.querySelectorAll("[data-step-indicator]")];
+const reviewContent = document.querySelector("#review-content");
+const previewWarning = document.querySelector("#preview-warning");
+const autosaveStatus = document.querySelector("#autosave-status");
+const successPanel = document.querySelector("#success-panel");
+const toast = document.querySelector("#toast");
+const desiredTiming = document.querySelector("#desired_timing");
+const desiredDateField = document.querySelector("#desired-date-field");
+const desiredDate = document.querySelector("#desired_date");
+
+const stepNames = ["入口", "世界の核", "距離と動き", "感情と異変", "材料と言葉", "出口", "秘密と確認", "封印前確認"];
+let currentStep = 0;
+let saveTimer;
+
+const reviewGroups = [
+  {
+    title: "入口",
+    fields: [
+      ["お名前／活動名", "applicant_name"], ["返信先", "email"], ["対象", "project_type"],
+      ["使い道", "usage"]
+    ]
+  },
+  {
+    title: "その世界の核",
+    fields: [
+      ["名前", "project_name"], ["一文紹介", "one_line_intro"], ["世界を表す言葉", "world_keywords"],
+      ["3つの言葉のニュアンス補足", "world_keyword_other"], ["いちばんの欲", "deepest_desire"]
+    ]
+  },
+  {
+    title: "距離と動き",
+    fields: [
+      ["キャラも集めるものを拾うか", "character_collects"], ["キャラの追いかけ方", "chase_behavior"],
+      ["初対面の態度", "first_attitude"], ["距離", "distance_style"], ["動き", "movement_style"],
+      ["補足", "attitude_notes"]
+    ]
+  },
+  {
+    title: "感情と異変",
+    fields: [
+      ["ゲームの難しさ", "base_difficulty"], ["プレイヤー成功時の反応", "reaction_success"], ["プレイヤー失敗時の反応", "reaction_failure"], ["プレイヤー放置時の反応", "reaction_idle"],
+      ["反応の補足", "reaction_notes"], ["変化のきっかけ", "change_trigger"], ["態度が変わるきっかけの詳細", "trigger_detail"],
+      ["嘘", "lie_style"]
+    ]
+  },
+  {
+    title: "材料と言葉",
+    fields: [
+      ["集めるもの", "collectible"], ["三色", ["color_1", "color_2", "color_3"]], ["象徴する物", "symbol_object"],
+      ["メイン画像", "image_plan"], ["メイン画像の補足", "main_image_notes"],
+      ["アイテム画像", "collectible_image_plan"], ["アイテム画像の補足", "collectible_image_notes"],
+      ["雰囲気へ混ぜたい違和感", "world_oddity"], ["言ってほしい台詞", "desired_lines"],
+      ["避けたい言葉", "forbidden_words"], ["台詞の追加範囲", "line_permission"]
+    ]
+  },
+  {
+    title: "出口",
+    fields: [
+      ["遊び終わったあとの気持ちや衝動", "ending_feeling"], ["最後に表示", "ending_destination"],
+      ["リンク1", ["link_label_1", "link_url_1"]], ["リンク2", ["link_label_2", "link_url_2"]], ["リンク3", ["link_label_3", "link_url_3"]],
+      ["使わない演出", "avoid_effects"], ["その他の回避", "avoid_effects_other"]
+    ]
+  },
+  {
+    title: "秘密と受付",
+    fields: [
+      ["密かに好きなところ", "secret_favorite"], ["参考資料", "reference_urls"], ["公開URLの希望名", "public_url_slug"], ["希望時期", "desired_timing"],
+      ["公開希望日", "desired_date"], ["その他", "anything_else"]
+    ]
+  }
+];
+
+function getNamedValues(name) {
+  const controls = [...form.elements].filter((element) => element.name === name);
+  if (!controls.length) return [];
+  if (controls[0].type === "checkbox" || controls[0].type === "radio") {
+    return controls.filter((control) => control.checked).map((control) => control.value || "確認済み");
+  }
+  return controls.map((control) => control.value.trim()).filter(Boolean);
+}
+
+function valueFor(fieldSpec) {
+  const names = Array.isArray(fieldSpec) ? fieldSpec : [fieldSpec];
+  return names.flatMap(getNamedValues).filter(Boolean).join(" / ");
+}
+
+function buildPayload() {
+  const payload = {};
+  const uniqueNames = [...new Set([...form.elements].map((element) => element.name).filter(Boolean))];
+  uniqueNames.forEach((name) => {
+    const values = getNamedValues(name);
+    if (values.length) payload[name] = values.length === 1 ? values[0] : values;
+  });
+  payload.submitted_at = new Date().toISOString();
+  payload.form_name = "NOCTARIUM 世界観召喚票";
+  return payload;
+}
+
+function createReview() {
+  reviewContent.replaceChildren();
+  reviewGroups.forEach((group) => {
+    const section = document.createElement("section");
+    section.className = "review-group";
+    const heading = document.createElement("h3");
+    heading.textContent = group.title;
+    section.append(heading);
+    const list = document.createElement("dl");
+    group.fields.forEach(([label, spec]) => {
+      const value = valueFor(spec);
+      if (!value) return;
+      const row = document.createElement("div");
+      row.className = "review-row";
+      const term = document.createElement("dt");
+      term.textContent = label;
+      const description = document.createElement("dd");
+      description.textContent = value;
+      row.append(term, description);
+      list.append(row);
+    });
+    section.append(list);
+    reviewContent.append(section);
+  });
+  previewWarning.hidden = Boolean(FORM_CONFIG.endpoint);
+  submitButton.firstChild.textContent = FORM_CONFIG.endpoint ? "召喚票を送る " : "送信画面を試す ";
+}
+
+function setStep(index, options = {}) {
+  currentStep = Math.max(0, Math.min(index, steps.length - 1));
+  steps.forEach((step, stepIndex) => {
+    const active = stepIndex === currentStep;
+    step.hidden = !active;
+    step.classList.toggle("is-active", active);
+  });
+  if (currentStep === steps.length - 1) createReview();
+  progressNumber.textContent = String(currentStep + 1);
+  progressLabel.textContent = stepNames[currentStep];
+  progressBar.style.width = `${((currentStep + 1) / steps.length) * 100}%`;
+  progressIndicators.forEach((indicator, indexValue) => {
+    indicator.classList.toggle("is-current", indexValue === currentStep);
+    indicator.classList.toggle("is-complete", indexValue < currentStep);
+  });
+  prevButton.hidden = currentStep === 0;
+  nextButton.hidden = currentStep === steps.length - 1;
+  submitButton.hidden = currentStep !== steps.length - 1;
+  errorBox.hidden = true;
+  if (!options.keepPosition) {
+    const top = form.getBoundingClientRect().top + window.scrollY - 14;
+    window.scrollTo({ top, behavior: "smooth" });
+  }
+}
+
+function checkedCount(fieldset) {
+  return fieldset.querySelectorAll('input[type="checkbox"]:checked').length;
+}
+
+function updateLimitedGroup(fieldset) {
+  const limit = Number(fieldset.dataset.limit);
+  const count = checkedCount(fieldset);
+  const note = fieldset.querySelector(".limit-note");
+  if (note) note.textContent = `${count} / ${limit}`;
+  fieldset.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
+    checkbox.disabled = count >= limit && !checkbox.checked;
+  });
+}
+
+function validateStep(stepIndex) {
+  const step = steps[stepIndex];
+  let firstInvalid = null;
+  let message = "未入力の必須項目があります。印のついた場所を確認してください。";
+  step.querySelectorAll(".is-invalid").forEach((element) => element.classList.remove("is-invalid"));
+
+  [...step.querySelectorAll("input, textarea, select")].forEach((control) => {
+    if (control.type === "radio") return;
+    if (!control.checkValidity()) {
+      control.classList.add("is-invalid");
+      if (!firstInvalid) firstInvalid = control;
+    }
+  });
+
+  const requiredRadioNames = [...new Set([...step.querySelectorAll('input[type="radio"][required]')].map((input) => input.name))];
+  requiredRadioNames.forEach((name) => {
+    if (!step.querySelector(`input[name="${name}"]:checked`)) {
+      const group = step.querySelector(`input[name="${name}"]`)?.closest("fieldset");
+      if (group) group.classList.add("is-invalid");
+      if (!firstInvalid) firstInvalid = group;
+    }
+  });
+
+  step.querySelectorAll("[data-limit]").forEach((fieldset) => {
+    const count = checkedCount(fieldset);
+    const exact = fieldset.dataset.exact ? Number(fieldset.dataset.exact) : null;
+    const minimum = fieldset.querySelector("legend .required") ? 1 : 0;
+    if ((exact !== null && count !== exact) || count < minimum) {
+      fieldset.classList.add("is-invalid");
+      message = exact !== null ? `「${fieldset.querySelector("legend").childNodes[0].textContent.trim()}」はちょうど${exact}つ選んでください。` : "選択が必要な項目があります。";
+      if (!firstInvalid) firstInvalid = fieldset;
+    }
+  });
+
+  if (stepIndex === 4 && document.querySelector("#line_permission").value === "提供台詞だけを使ってほしい") {
+    const desiredLines = document.querySelector("#desired_lines");
+    if (!desiredLines.value.trim()) {
+      desiredLines.classList.add("is-invalid");
+      message = "提供台詞だけを使う場合は、使いたい台詞を一行に一つずつ記入してください。";
+      if (!firstInvalid) firstInvalid = desiredLines;
+    }
+  }
+
+  if (firstInvalid) {
+    errorBox.textContent = message;
+    errorBox.hidden = false;
+    firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
+    const focusTarget = firstInvalid.matches?.("input, textarea, select") ? firstInvalid : firstInvalid.querySelector?.("input, textarea, select");
+    setTimeout(() => focusTarget?.focus({ preventScroll: true }), 250);
+    return false;
+  }
+  errorBox.hidden = true;
+  return true;
+}
+
+function saveAnswers() {
+  try {
+    const state = { step: currentStep, values: {} };
+    [...form.elements].forEach((element) => {
+      if (!element.name) return;
+      if (element.type === "checkbox" || element.type === "radio") {
+        state.values[element.name] ??= [];
+        if (element.checked) state.values[element.name].push(element.value || "on");
+      } else {
+        state.values[element.name] = element.value;
+      }
+    });
+    localStorage.setItem(FORM_CONFIG.storageKey, JSON.stringify(state));
+    autosaveStatus.textContent = `この端末へ保存済み ${new Date().toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}`;
+  } catch {
+    autosaveStatus.textContent = "このブラウザでは途中保存できません";
+  }
+}
+
+function restoreAnswers() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(FORM_CONFIG.storageKey));
+    if (!saved?.values) return;
+    [...form.elements].forEach((element) => {
+      if (!element.name || !(element.name in saved.values)) return;
+      const value = saved.values[element.name];
+      if (element.type === "checkbox" || element.type === "radio") {
+        element.checked = Array.isArray(value) && value.includes(element.value || "on");
+      } else {
+        element.value = value;
+      }
+    });
+    currentStep = Math.min(Number(saved.step) || 0, steps.length - 1);
+    autosaveStatus.textContent = "前回の続きから開きました";
+  } catch {
+    localStorage.removeItem(FORM_CONFIG.storageKey);
+  }
+}
+
+function updateDesiredDateVisibility() {
+  const hasFixedDate = desiredTiming.value === "決まった希望日がある";
+  desiredDateField.hidden = !hasFixedDate;
+  desiredDate.disabled = !hasFixedDate;
+  desiredDate.required = hasFixedDate;
+  if (!hasFixedDate) desiredDate.value = "";
+}
+
+function answersAsText() {
+  const lines = ["NOCTARIUM｜世界観召喚票", ""];
+  reviewGroups.forEach((group) => {
+    lines.push(`■ ${group.title}`);
+    group.fields.forEach(([label, spec]) => {
+      const value = valueFor(spec);
+      if (value) lines.push(`${label}：${value}`);
+    });
+    lines.push("");
+  });
+  return lines.join("\n");
+}
+
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add("is-visible");
+  window.clearTimeout(showToast.timer);
+  showToast.timer = window.setTimeout(() => toast.classList.remove("is-visible"), 2400);
+}
+
+nextButton.addEventListener("click", () => {
+  if (!validateStep(currentStep)) return;
+  saveAnswers();
+  setStep(currentStep + 1);
+});
+
+prevButton.addEventListener("click", () => {
+  saveAnswers();
+  setStep(currentStep - 1);
+});
+
+form.addEventListener("input", (event) => {
+  event.target.classList.remove("is-invalid");
+  event.target.closest("fieldset")?.classList.remove("is-invalid");
+  if (event.target.matches('[type="checkbox"]')) {
+    if (event.target.name === "avoid_effects") {
+      const avoidBoxes = [...form.querySelectorAll('input[name="avoid_effects"]')];
+      if (event.target.value === "特になし" && event.target.checked) {
+        avoidBoxes.filter((box) => box !== event.target).forEach((box) => { box.checked = false; });
+      } else if (event.target.checked) {
+        const noneBox = avoidBoxes.find((box) => box.value === "特になし");
+        if (noneBox) noneBox.checked = false;
+      }
+    }
+    const limitedGroup = event.target.closest("[data-limit]");
+    if (limitedGroup) updateLimitedGroup(limitedGroup);
+  }
+  if (event.target.maxLength > 0) {
+    const counter = document.querySelector(`[data-count-for="${event.target.id}"]`);
+    if (counter) counter.textContent = String(event.target.value.length);
+  }
+  window.clearTimeout(saveTimer);
+  saveTimer = window.setTimeout(saveAnswers, 450);
+});
+
+desiredTiming.addEventListener("change", () => {
+  updateDesiredDateVisibility();
+  saveAnswers();
+});
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (!validateStep(6)) {
+    setStep(6);
+    return;
+  }
+  submitButton.disabled = true;
+  submitButton.firstChild.textContent = FORM_CONFIG.endpoint ? "送信中… " : "試運転中… ";
+  try {
+    if (FORM_CONFIG.endpoint) {
+      const response = await fetch(FORM_CONFIG.endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify(buildPayload())
+      });
+      if (!response.ok) throw new Error(`送信に失敗しました (${response.status})`);
+    } else {
+      await new Promise((resolve) => setTimeout(resolve, 450));
+    }
+    if (FORM_CONFIG.endpoint && FORM_CONFIG.clearSavedAnswersAfterSuccessfulSubmit) {
+      localStorage.removeItem(FORM_CONFIG.storageKey);
+    }
+    document.querySelector(".form-shell").hidden = true;
+    successPanel.hidden = false;
+    successPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (error) {
+    errorBox.textContent = `${error.message}。時間を置いてもう一度お試しください。`;
+    errorBox.hidden = false;
+    errorBox.scrollIntoView({ behavior: "smooth", block: "center" });
+  } finally {
+    submitButton.disabled = false;
+    submitButton.firstChild.textContent = FORM_CONFIG.endpoint ? "召喚票を送る " : "送信画面を試す ";
+  }
+});
+
+document.querySelector("#copy-answers").addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(answersAsText());
+    showToast("回答をクリップボードへ刻みました");
+  } catch {
+    showToast("コピーできませんでした。回答書の保存をお試しください");
+  }
+});
+
+document.querySelector("#download-answers").addEventListener("click", () => {
+  const blob = new Blob([answersAsText()], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  const projectName = getNamedValues("project_name")[0] || "world";
+  link.href = url;
+  link.download = `noctarium-${projectName.replace(/[\\/:*?\"<>|\s]+/g, "-")}-answers.txt`;
+  link.click();
+  URL.revokeObjectURL(url);
+  showToast("回答書を保存しました");
+});
+
+document.querySelector("#return-to-form").addEventListener("click", () => {
+  successPanel.hidden = true;
+  document.querySelector(".form-shell").hidden = false;
+  setStep(7);
+});
+
+restoreAnswers();
+desiredDate.min = new Date().toISOString().slice(0, 10);
+updateDesiredDateVisibility();
+document.querySelectorAll("[data-limit]").forEach(updateLimitedGroup);
+document.querySelectorAll("[data-count-for]").forEach((counter) => {
+  const target = document.querySelector(`#${counter.dataset.countFor}`);
+  if (target) counter.textContent = String(target.value.length);
+});
+setStep(currentStep, { keepPosition: true });
+
+</script>
+</body>
+</html>
