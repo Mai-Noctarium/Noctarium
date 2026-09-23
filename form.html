@@ -7,8 +7,7 @@
   <meta name="theme-color" content="#211620">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23211620'/%3E%3Cpath d='M12 49V15h8l24 24V15h8v34h-8L20 25v24z' fill='%23e1b9a9'/%3E%3C/svg%3E">
   <title>世界観召喚票｜NOCTARIUM PLAYABLE CARD</title>
-  <style>
-@charset "UTF-8";
+  <style>@charset "UTF-8";
 
 :root {
   color-scheme: dark;
@@ -341,7 +340,6 @@ footer { width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 25px 0;
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; scroll-behavior: auto !important; transition: none !important; }
 }
-
 </style>
 </head>
 <body>
@@ -394,9 +392,11 @@ footer { width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 25px 0;
           <div class="step-heading">
             <p class="step-number">LAYER 00</p>
             <h2 id="step-0-title">入口</h2>
-            <p>連絡先と、今回動かしたい世界を教えてください。</p>
+            <p>連絡先と、今回動かしたい世界を教えてください。送信後に内容を確認し、制作可能な場合に購入をご案内します。</p>
           </div>
 
+          <aside class="service-note" aria-label="お申し込み条件"><h3>先行受付 8,800円（税込）／全3枠</h3><p>入金とフォーム回答・必要素材がすべて揃ってから制作開始、30日以内に納品します（確認待ち・素材不足の期間を除く）。無料修正1回。新規画像制作などの追加料金は、ご購入前にご案内します。</p><p><a href="index.html#price" class="entrance-back">料金・制作範囲を玄関で確認する</a></p></aside>
+          <fieldset class="field"><legend>見本の動作確認 <span class="required">必須</span></legend><p class="hint">使う予定の端末・ブラウザで、開始・操作・結果画面までお試しください。クリアできなくても大丈夫です。<a href="index.html#works" class="entrance-back">見本へ戻る</a></p><div class="field-grid two-columns"><div class="field"><label for="trial_sample">遊んだ見本</label><select id="trial_sample" name="trial_sample" required><option value="">選んでください</option><option>リュシアン</option><option>オディール</option><option>LOST-7</option><option>おひめさまのドレス屋さん</option><option>まだ試せていない</option></select></div><div class="field"><label for="trial_result">確認の結果</label><select id="trial_result" name="trial_result" required><option value="">選んでください</option><option>開始・操作・結果画面まで確認できた</option><option>動作や表示に気になる点があった</option><option>起動できなかった</option><option>まだ試せていない</option></select></div><div class="field"><label for="trial_device">使った端末</label><input id="trial_device" name="trial_device" required maxlength="100" placeholder="例：iPhone 15 / Windows PC / 未確認"></div><div class="field"><label for="trial_browser">使ったブラウザ</label><input id="trial_browser" name="trial_browser" required maxlength="100" placeholder="例：Safari / Chrome / 不明"></div></div><div class="field"><label for="trial_notes">気になったこと <span class="optional">任意</span></label><textarea id="trial_notes" name="trial_notes" rows="3" maxlength="1500" placeholder="いつ・どこで・何が起きたかなど"></textarea></div><p class="hint">不具合や未確認の項目がある場合は、購入案内の前に確認します。見本での確認は、完成品のすべての環境での動作を保証するものではありません。</p></fieldset>
           <div class="field-grid two-columns">
             <div class="field">
               <label for="applicant_name">お名前／活動名 <span class="required">必須</span></label>
@@ -879,8 +879,7 @@ footer { width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 25px 0;
   </footer>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script>
-"use strict";
+  <script>"use strict";
 
 const FORM_CONFIG = {
   // JSON POSTを受け付ける送信先URL。空欄では送信できません。
@@ -913,6 +912,10 @@ let currentStep = 0;
 let saveTimer;
 
 const reviewGroups = [
+  {
+    title: "見本の動作確認",
+    fields: [["遊んだ見本", "trial_sample"], ["確認の結果", "trial_result"], ["使った端末", "trial_device"], ["使ったブラウザ", "trial_browser"], ["気になったこと", "trial_notes"]]
+  },
   {
     title: "入口",
     fields: [
@@ -1234,9 +1237,12 @@ form.addEventListener("submit", async (event) => {
     errorBox.hidden = false;
     return;
   }
-  if (!validateStep(6)) {
-    setStep(6);
-    return;
+  for (let index = 0; index < steps.length - 1; index += 1) {
+    if (!validateStep(index)) {
+      setStep(index);
+      validateStep(index);
+      return;
+    }
   }
   submitButton.disabled = true;
   submitButton.firstChild.textContent = "送信中… ";
@@ -1305,7 +1311,6 @@ document.querySelectorAll("[data-count-for]").forEach((counter) => {
   if (target) counter.textContent = String(target.value.length);
 });
 setStep(currentStep, { keepPosition: true });
-
 </script>
-</body>
+<script>document.querySelectorAll('.entrance-back').forEach(function(a){a.addEventListener('click',function(e){if(window.parent!==window){e.preventDefault();window.parent.postMessage({type:'noctarium-return',hash:a.hash},'*')}})})</script></body>
 </html>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="NOCTARIUM logo" style="color:#193530">
+
+<g fill="none" stroke="currentColor" stroke-linecap="square" stroke-linejoin="miter">
+  <path d="M16 110V52C16 24 36 10 60 10C84 10 104 24 104 52V110" stroke-width="4"/>
+  <path d="M10 110H110" stroke-width="4"/>
+  <path d="M36 96V48L84 96V48" stroke-width="5"/>
+  <circle cx="45" cy="30" r="4.5" fill="currentColor" stroke="none"/>
+  <circle cx="75" cy="23.5" r="6.2" stroke-width="3"/>
+</g>
+</svg>
