@@ -83,19 +83,19 @@
 })(typeof window==='undefined'?globalThis:window);
 </script><script>(function(root){
 const data={
-untouched:{title:'迷いのないおひめさま',line:'最初から、お決まりだったんですね♡',copy:'そのおしたく、とてもお似合いです。'},
+untouched:{title:'迷いのないおひめさま',line:'最初から、お決まりだったんですね♡',copy:'お客様に、とってもお似合いです。'},
 narrow:{title:'おしたく完成♡',line:'とっても素敵なおひめさまになりました♡',copy:'また別のおひめさまになりたくなったら、いつでもいらしてくださいね。'},
-swift:{title:'おしたく上手♡',line:'もう完成してしまったんですか？ とってもお上手です♡',copy:'次は、少し違うおひめさまドレスもどうぞ。'},
-complete:{title:'たくさん試着したおひめさま',line:'いろいろ着てみるのも、楽しかったでしょう？♡',copy:'どれもよくお似合いでした♡。'},
+swift:{title:'おしたく上手♡',line:'もう完成してしまったんですか？ とてもすてきです。',copy:'次は、少し違うおひめさまドレスもどうぞ。'},
+complete:{title:'たくさん試着したおひめさま',line:'いろいろ着てみるのも、楽しかったでしょう？♡',copy:'またお越しくださいね。'},
 almost:{title:'あと少しでした',line:'もう少しで、おしたく完成でしたね。',copy:'続きはまた今度。お取り置きしておきます♡'},
-halfway:{title:'またご試着ください♡',line:'今日はここまでにしましょう。',copy:'おひめさまのドレスは、いつでも待っています。'},
+halfway:{title:'またご試着ください♡',line:'今日はここまでにしましょう。',copy:'おひめさまのドレスは、いつでもお待ちしています。'},
 lingering:{title:'見るだけでも大歓迎♡',line:'今日は見るだけでも大丈夫です。',copy:'でも次は、一着だけでも試してみてくださいね♡'}};
 function select(g){const won=g.state==='won';const id=won?(g.hits===0?'untouched':g.time<=10?'narrow':g.elapsed<=30?'swift':'complete'):(g.score>=10?'almost':g.score>=6?'halfway':'lingering');return{id,won,...data[id]};}
 if(typeof module!=='undefined')module.exports=select;else root.NoctariumEnding=select;
 })(typeof window==='undefined'?globalThis:window);
 </script><script>'use strict';
 const $=s=>document.querySelector(s),canvas=$('#canvas'),ctx=canvas.getContext('2d');
-const names=['ドレス','ブラウス','パニエ','ボンネット','ケープ','大きなリボン','ソックス','お靴','バッグ','ネックレス','リストカフス','手袋'];
+const names=['ドレス','ブラウス','パニエ','ボンネット','ケープ','リボン','ソックス','お靴','バッグ','ネックレス','お袖どめ','レース手袋'];
 const shapes=[
 '<path d="M22 9l10 6 10-6 7 10-9 9 3 8 15 23H6l15-23 3-8-9-9z"/><path d="M24 28h16M21 37h22M15 48h34"/><path d="M26 31l6 3 6-3v9l-6-4-6 4z" fill="#f9f0df"/>',
 '<path d="M23 10l9 5 9-5 15 12-7 12-7-4v25H22V30l-7 4-7-12z"/><path d="M23 10l9 15 9-15M32 25v30"/><circle cx="35" cy="33" r="1"/><circle cx="35" cy="42" r="1"/>',
@@ -119,13 +119,13 @@ function assignTypes(){const used=new Set(bag);for(const i of game.items){let n=
 function say(text,short='',priority=1){if(priority<speechPriority&&game.elapsed<speechUntil)return;$('#speech').textContent=text;speechPriority=priority;speechUntil=game.elapsed+2.4;$('#bubble').textContent=short;bubbleUntil=game.elapsed+2.4;}
 function clearInput(){keys.clear();target=null;drag=false;}
 function chime(freq=650){if(!sound)return;try{audioContext??=new(window.AudioContext||window.webkitAudioContext)();audioContext.resume();const o=audioContext.createOscillator(),g=audioContext.createGain();o.type='sine';o.frequency.setValueAtTime(freq,audioContext.currentTime);g.gain.setValueAtTime(.06,audioContext.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioContext.currentTime+.22);o.connect(g).connect(audioContext.destination);o.start();o.stop(audioContext.currentTime+.23);}catch{}}
-function ready(){game=new NoctariumGame();bag=[];types=new Map();particles=[];assignTypes();clearInput();speechPriority=0;speechUntil=0;$('#pause').disabled=true;$('#pause').textContent='一時停止';say('おひめさまのドレス屋さんへようこそ♡');showCard('<p class="kicker">本日のご招待</p><h2>今日は、どの<br>おひめさまドレス？</h2><p>お客さまとして、<b>60秒で12点</b>。<br>あなたのおしたくを完成させて♡</p><p class="rule">白いマネキンに追いつかれると、<br>選んだものがひとつ棚へ戻ります。</p><button class="primary" id="start">おしたくをはじめる ♡</button><small>リボンのマークがあなた。タッチ／矢印キーで移動。</small>');$('#start').onclick=start;updateHUD();draw();}
+function ready(){game=new NoctariumGame();bag=[];types=new Map();particles=[];assignTypes();clearInput();speechPriority=0;speechUntil=0;$('#pause').disabled=true;$('#pause').textContent='一時停止';say('おひめさまのドレス屋さんへようこそ♡');showCard('<p class="kicker">本日のご招待</p><h2>どのドレスに<br>なさいますか？</h2><p><b>60秒で12点あつめて、</b><br>あなたのおしたくを完成させて♡</p><p class="rule">白いマネキンに追いつかれると、<br>選んだものがひとつ棚へ戻ります。</p><button class="primary" id="start">おしたくをはじめる ♡</button><small>リボンのマークがあなた。タッチ／矢印キーで移動。</small>');$('#start').onclick=start;updateHUD();draw();}
 function showCard(html){$('#overlay').hidden=false;$('#card').innerHTML=html;$('#bubble').hidden=true;}
 function start(){game=new NoctariumGame();bag=[];types=new Map();particles=[];speechPriority=0;speechUntil=0;assignTypes();game.start();clearInput();$('#overlay').hidden=true;$('#pause').disabled=false;$('#pause').textContent='一時停止';last=performance.now();events();updateHUD();canvas.focus({preventScroll:true});}
 function pause(reason='ひと休みしましょう。'){if(game.state!=='playing')return;game.pause();clearInput();$('#pause').textContent='再開';showCard('<p class="kicker">ご休憩中</p><h2>'+reason+'</h2><p>時計も、マネキンも止まっています。</p><button class="primary" id="resume">おしたくに戻る</button>');$('#resume').onclick=resume;}
 function resume(){if(game.state!=='paused'||$('#dialog').open)return;game.resume();$('#overlay').hidden=true;$('#pause').textContent='一時停止';clearInput();last=performance.now();canvas.focus({preventScroll:true});}
 function finish(){clearInput();$('#pause').disabled=true;const e=NoctariumEnding(game);say(e.line,'',10);showCard('<p class="kicker">'+(e.won?'おしたくが整いました':'本日のご試着を終えて')+'</p><h2>'+e.title+'</h2><p>'+e.line+'</p><p>'+e.copy+'</p><p class="result-stats">'+game.score+' / 12点　·　'+Math.ceil(game.elapsed)+'秒　·　ご提案 '+game.hits+'回</p><button class="primary" id="retry">もう一度おしたくする</button><button class="result-about" id="result-about">お店について</button>');$('#retry').onclick=start;$('#result-about').onclick=about;chime(e.won?1046:440);}
-function events(){for(const e of game.events.splice(0)){if(e.type==='start')say('ごゆっくりご覧ください♡','ご覧くださいませ♡');if(e.type==='collect'){let kind=types.get(e.id);if(kind!==undefined)bag.push(kind);chime(550+e.score*40);particles.push({x:e.x,y:e.y,text:'+1 '+names[kind],until:game.elapsed+1});if(e.score===2)say('そちら、とても素敵です♡','とても素敵です♡');else if(e.score===5)say('そのおしたく、とてもよくお似合いです。','よくお似合いです♡');else if(e.score===7)say('だんだん、おしたくが整ってきましたね。','可愛いです♡',2);else if(e.score===10)say('あと少しで完成です♡','あと少しです♡',2);}
+function events(){for(const e of game.events.splice(0)){if(e.type==='start')say('今日は、どのドレスになさいますか？','ご覧くださいませ♡');if(e.type==='collect'){let kind=types.get(e.id);if(kind!==undefined)bag.push(kind);chime(550+e.score*40);particles.push({x:e.x,y:e.y,text:'+1 '+names[kind],until:game.elapsed+1});if(e.score===2)say('そちら、とても素敵です♡','とても素敵です♡');else if(e.score===5)say('そのおしたく、とてもよくお似合いです。','お似合いです♡');else if(e.score===7)say('だんだん、おしたくが整ってきましたね。','こちらもおすすめです♡',2);else if(e.score===10)say('あと少しで完成です♡','あと少しです♡',2);}
 if(e.type==='hit'){if(e.lost)bag.pop();say(e.lost?'こちらはいったんお預かりしますね。別のおしたくも、どうぞ♡':'ご試着だけでもどうぞ♡',e.lost?'お預かりします♡':'ご試着だけでも♡',3);particles.push({x:game.player.x,y:game.player.y,text:e.lost?'−1 棚へ戻りました':'ご試着だけでも♡',until:game.elapsed+1.3});chime(330);}
 if(e.type==='idle')say('お手伝いしましょうか？ まだ見ていない棚もございます♡','お手伝いします♡');if(e.type==='finish')finish();}assignTypes();}
 function updateHUD(){$('#score').textContent=game.score;$('#time').textContent=Math.ceil(game.time);$('#status').textContent=game.state==='ready'?'開店しました':game.state==='paused'?'ご休憩中':game.state==='won'?'おしたく完成♡':game.state==='lost'?'またご来店ください':game.score>=10?'仕上げをお手伝い♡':game.score>=6?'接客が積極的に♡':'ごゆっくりどうぞ';}
